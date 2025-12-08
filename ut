@@ -1,0 +1,29 @@
+
+#include <stdio.h>
+#include <math.h>
+
+int main() {
+    double diameter[] = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100};
+    double velocity[] = {3.871, 14.87, 33.47, 58.22, 59.31, 125, 168.3, 215.3, 266.4, 320, 378, 439, 500, 560, 625, 695, 759, 823, 890, 957};
+    int n = sizeof(diameter) / sizeof(diameter[0]);
+    double sumLnDiameter = 0;
+    double sumLnVelocity = 0;
+    double sumLnDiameterSquared = 0;
+    double sumLnDiameterTimesLnVelocity = 0;
+    for (int i = 0; i < n; i++) {
+        sumLnDiameter += log(diameter[i]);
+        sumLnVelocity += log(velocity[i]);
+        sumLnDiameterSquared += pow(log(diameter[i]), 2);
+        sumLnDiameterTimesLnVelocity += log(diameter[i]) * log(velocity[i]);
+    }
+    double B = (n * sumLnDiameterTimesLnVelocity - sumLnDiameter * sumLnVelocity) / (n * sumLnDiameterSquared - pow(sumLnDiameter, 2));
+    double lnA = (sumLnVelocity - B * sumLnDiameter) / n;
+    double A = exp(lnA);
+    printf("The equation of the best fit is: Ut = %lf(Dp) ^ %lf\n", A, B);
+    printf("The calculated value of velocity are:\n");
+    for(int j=0; j<n; j++){
+        double y = 0.210994 * pow(diameter[j], 1.85244);
+        printf("%lf\n", y);
+    }
+    return 0;
+}
