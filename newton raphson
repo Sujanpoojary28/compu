@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <math.h>
+#define R 0.0821 // Gas constant in L·atm/(mol·K)
+#define T 273.15 // Temperature in K
+#define P 30.5 // Pressure in atm
+#define Tc 304.0 // Critical Temperature in K
+#define Pc 72.9 // Critical Pressure in atm
+#define EPSILON 1e-6
+#define MAX_ITER 1000
+// Function to compute 'a' constant
+double compute_a() {
+return (27.0 * R * R * Tc * Tc) / (64.0 * Pc);
+}
+// Function to compute 'b' constant
+double compute_b() {
+return (R * Tc) / (8.0 * Pc);
+}
+// van der Waals function f(V) = (P + a / V^2)(V - b) - RT
+double f(double V, double a, double b) {
+return (P + a / (V * V)) * (V - b) - R * T;
+}
+// Derivative f'(V)
+double f_prime(double V, double a, double b) {
+return (P + a / (V * V))
+- (2.0 * a * (V - b)) / (V * V * V);
+}
+int main() {
+double a = compute_a();
+double b = compute_b();
+double V = R * T / P; // Initial guess using ideal gas law
+double V_new;
+int iter = 0;
+while (iter < MAX_ITER) {
+double f_val = f(V, a, b);
+double f_deriv = f_prime(V, a, b);
+if (fabs(f_deriv) < EPSILON) {
+printf("Derivative too small. Method fails.\n");
+return 1;
+}
+V_new = V - f_val / f_deriv;
+if (fabs(V_new - V) < EPSILON)
+break;
+V = V_new;
+iter++;
+}
+if (iter == MAX_ITER) {
+printf("Newton-Raphson did not converge.\n");
+} else {
+printf("Molar volume of CO2 = %.6f L/mol after %d iterations.\n", V_new, iter);
+}
+return 0;
+}
