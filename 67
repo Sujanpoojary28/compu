@@ -1,0 +1,32 @@
+// compact bubble temp solver (Antoine, P in mmHg) - Scilab
+clear;
+n = input("n components: ");
+P = input("Total pressure (mmHg): ");
+xi = zeros(1,n); A=zeros(1,n); B=zeros(1,n); C=zeros(1,n);
+for i=1:n
+  xi(i)=input("x("+string(i)+"):");
+  A(i)=input("A("+string(i)+"):"); B(i)=input("B("+string(i)+"):"); C(i)=input("C("+string(i)+"):");
+end
+xi = xi/sum(xi);
+
+// Psat function (vectorized)
+function ps = Psat(T,A,B,C)
+  ps = 10 .^ (A - B ./ (T + C)); // element-wise ops
+endfunction
+
+T = 80; tol=1e-6; maxit=100; it=0;
+while it<maxit
+  it=it+1;
+  Pvec = Psat(T,A,B,C);
+  f = sum(xi.*Pvec) - P;
+  if abs(f) < 1e-8 then break; end
+  dT = 1e-2;
+  Pvec2 = Psat(T+dT,A,B,C);
+  df = (sum(xi.*Pvec2)-sum(xi.*Pvec))/dT;
+  Tnew = T - f/df;
+  if abs(Tnew-T) < tol then T=Tnew; break; end
+  T = Tnew;
+end
+yi = xi.*Psat(T,A,B,C)/P;
+printf("\nBubble T = %g °C\n",T);
+printf("y: "); disp(yi);
