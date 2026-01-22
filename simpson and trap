@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <math.h>
+
+double calculate_y_prime(double x) {
+    const double a = 2.5;
+    return (a * x) / (1 + (a - 1) * pow(x, 0.98));
+}
+
+double integrand(double x) {
+    double y_prime = calculate_y_prime(x);
+    return 1 / (y_prime - x);
+}
+
+double simpsons_rule(double a, double b, int n) {
+    double h = (b - a) / n;
+    double result = integrand(a) + integrand(b);
+    for (int i = 1; i < n; i += 2) {
+        result += 4 * integrand(a + i * h);
+    }
+    for (int j = 2; j < n - 1; j += 2) {
+        result += 2 * integrand(a + j * h);
+    }
+    return (h / 3) * result;
+}
+
+double trapezoidal_rule(double a, double b, int n) {
+    double h = (b - a) / n;
+    double result = integrand(a) + integrand(b);
+    for (int k = 1; k < n; ++k) {
+        result += 2 * integrand(a + k * h);
+    }
+    return (h / 2) * result;
+}
+
+int main() {
+    const double xw = 0.03;
+    const double xf = 0.2;
+    const double F = 500;
+    int n = 1000;
+
+    double integral_simpson = simpsons_rule(xw, xf, n);
+    double integral_trapezoidal = trapezoidal_rule(xw, xf, n);
+
+    double W_simpson = F / exp(integral_simpson);
+    double W_trapezoidal = F / exp(integral_trapezoidal);
+
+    printf("Total moles using Simpson's 1/3 method: %f moles\n", W_simpson);
+    printf("Total moles using Trapezoidal method: %f moles\n", W_trapezoidal);
+
+    return 0;
+}
