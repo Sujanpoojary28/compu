@@ -1,0 +1,50 @@
+n = 3;
+P = 80;
+y = [0.6 0.2 0.2];
+
+A = [14.5463 14.2724 14.2043];
+B = [2940.46 2945.467 2972.64];
+C = [273.22 224.0 209.0];
+
+Tsat = zeros(1,n);
+for i = 1:n
+    Tsat(i) = B(i)/(A(i)-log(P)) - C(i);
+end
+
+T0 = sum(y .* Tsat);
+
+k = 2;
+tol = 0.001;
+err = 1;
+
+while err > tol
+    Psat = zeros(1,n);
+    for i = 1:n
+        Psat(i) = exp(A(i) - B(i)/(T0 + C(i)));
+    end
+
+    alpha = Psat / Psat(k);
+    Psat_new = P * sum(y ./ alpha);
+
+    Tnew = B(k)/(A(k) - log(Psat_new)) - C(k);
+    err = abs((Tnew - T0)/T0);
+    T0 = Tnew;
+end
+
+T_dew = Tnew;
+
+Psat_final = zeros(1,n);
+for i = 1:n
+    Psat_final(i) = exp(A(i) - B(i)/(T_dew + C(i)));
+end
+
+x = zeros(1,n);
+for i = 1:n
+    x(i) = y(i) * P / Psat_final(i);
+end
+
+mprintf("Dew Temperature = %5.2f K \n", T_dew);
+mprintf("Liquid phase mole fractions:\n");
+for i = 1:n
+    mprintf("x(%d) = %6.4f \n", i, x(i));
+end
