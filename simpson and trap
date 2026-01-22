@@ -1,51 +1,70 @@
 #include <stdio.h>
 #include <math.h>
 
-double calculate_y_prime(double x) {
-    const double a = 2.5;
-    return (a * x) / (1 + (a - 1) * pow(x, 0.98));
+#define F 500.0
+#define A 2.5
+#define N 1000
+
+double y_star(double x)
+{
+    return (A * x) / (1.0 + (A - 1.0) * pow(x, 0.98));
 }
 
-double integrand(double x) {
-    double y_prime = calculate_y_prime(x);
-    return 1 / (y_prime - x);
+double f(double x)
+{
+    return 1.0 / (y_star(x) - x);
 }
 
-double simpsons_rule(double a, double b, int n) {
+double Simpson(double a, double b, int n)
+{
+    if (n % 2 != 0)
+        n++;
+
     double h = (b - a) / n;
-    double result = integrand(a) + integrand(b);
-    for (int i = 1; i < n; i += 2) {
-        result += 4 * integrand(a + i * h);
+    double sum = f(a) + f(b);
+
+    for (int i = 1; i < n; i++)
+    {
+        double x = a + i * h;
+        if (i % 2 == 0)
+            sum += 2 * f(x);
+        else
+            sum += 4 * f(x);
     }
-    for (int j = 2; j < n - 1; j += 2) {
-        result += 2 * integrand(a + j * h);
-    }
-    return (h / 3) * result;
+
+    return (h / 3.0) * sum;
 }
 
-double trapezoidal_rule(double a, double b, int n) {
+double trapezoidal(double a, double b, int n)
+{
     double h = (b - a) / n;
-    double result = integrand(a) + integrand(b);
-    for (int k = 1; k < n; ++k) {
-        result += 2 * integrand(a + k * h);
+    double sum = 0.5 * (f(a) + f(b));
+
+    for (int i = 1; i < n; i++)
+    {
+        double x = a + i * h;
+        sum += f(x);
     }
-    return (h / 2) * result;
+
+    return h * sum;
 }
 
-int main() {
-    const double xw = 0.03;
-    const double xf = 0.2;
-    const double F = 500;
-    int n = 1000;
+int main()
+{
+    double xw = 0.03;
+    double xf = 0.20;
 
-    double integral_simpson = simpsons_rule(xw, xf, n);
-    double integral_trapezoidal = trapezoidal_rule(xw, xf, n);
+    double integral_simpson = Simpson(xw, xf, N);
+    double integral_trap = trapezoidal(xw, xf, N);
 
     double W_simpson = F / exp(integral_simpson);
-    double W_trapezoidal = F / exp(integral_trapezoidal);
+    double W_trap = F / exp(integral_trap);
 
-    printf("Total moles using Simpson's 1/3 method: %f moles\n", W_simpson);
-    printf("Total moles using Trapezoidal method: %f moles\n", W_trapezoidal);
+    printf("Integral by Simpson = %f\n", integral_simpson);
+    printf("Integral by Trapezoidal = %f\n", integral_trap);
+
+    printf("W (Simpson) = %f moles\n", W_simpson);
+    printf("W (Trapezoidal) = %f moles\n", W_trap);
 
     return 0;
 }
