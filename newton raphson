@@ -1,46 +1,58 @@
 #include <stdio.h>
 #include <math.h>
-#define R 0.0821 // Gas constant in atm * L / mol * K
+
+#define R 0.0821
+
 double calculate_a(double Tc, double Pc) {
- return 27 * pow(R, 2) * pow(Tc, 2) / (64 * Pc);
+    return 27 * pow(R, 2) * pow(Tc, 2) / (64 * Pc);
 }
+
 double calculate_b(double Tc, double Pc) {
- return R * Tc / (8 * Pc);
+    return R * Tc / (8 * Pc);
 }
+
 double calculate_vdw_eq(double P, double T, double a, double b, double V_guess) {
- return (P + a / pow(V_guess, 2)) * (V_guess - b) - R * T;
+    return (P + a / pow(V_guess, 2)) * (V_guess - b) - R * T;
 }
+
 double calculate_derivative(double P, double T, double a, double b, double V_guess) {
- return -(2 * a / pow(V_guess, 3)) * (V_guess - b) + (P + a / pow(V_guess, 2));
+    return -(2 * a / pow(V_guess, 3)) * (V_guess - b) + (P + a / pow(V_guess, 2));
 }
+
 double newton_raphson(double P, double T, double a, double b, double V_guess, double epsilon, int max_iter) {
- double V_next = V_guess;
- int iter = 0;
- double error;
- do {
- double f = calculate_vdw_eq(P, T, a, b, V_next);
- double f_prime = calculate_derivative(P, T, a, b, V_next);
- V_next = V_next - f / f_prime;
- error = fabs(f);
- iter++;
- } while (error > epsilon && iter < max_iter);
- return V_next;
+    double V_next = V_guess;
+    int iter = 0;
+    double error;
+
+    do {
+        double f = calculate_vdw_eq(P, T, a, b, V_next);
+        double f_prime = calculate_derivative(P, T, a, b, V_next);
+        V_next = V_next - f / f_prime;
+        error = fabs(f);
+        iter++;
+    } while (error > epsilon && iter < max_iter);
+
+    return V_next;
 }
+
 int main() {
- double Pc = 72.9; // Critical pressure in atm
- double Tc = 304.0; // Critical temperature in K
- double P = 30.5; // Pressure in atm
- double T = 273.15; // Temperature in K
- double a = calculate_a(Tc, Pc);
- double b = calculate_b(Tc, Pc);
- double V_guess = 2 * b; // Initial guess for molar volume
- double epsilon = 1e-6; // Error tolerance
- int max_iter = 1000; // Maximum number of iterations
- double V = newton_raphson(P, T, a, b, V_guess, epsilon, max_iter);
- printf("Calculated values of constants a and b are %f atm L2 mol-2 and %f L mol-1\n",a,b);
- 
- printf("Initial value of Molar Volume of CO2 at %f K and %f atm: %f L/mol\n",T,P,V_guess);
- 
- printf("Molar volume of CO2 at %.2f atm and %.2f K: %.4f L/mol\n", P, T, V);
- return 0;
+    double Pc = 72.9;
+    double Tc = 304.0;
+    double P = 30.5;
+    double T = 273.15;
+
+    double a = calculate_a(Tc, Pc);
+    double b = calculate_b(Tc, Pc);
+
+    double V_guess = 2 * b;
+    double epsilon = 1e-6;
+    int max_iter = 1000;
+
+    double V = newton_raphson(P, T, a, b, V_guess, epsilon, max_iter);
+
+    printf("Calculated values of constants a and b are %f atm L2 mol-2 and %f L mol-1\n", a, b);
+    printf("Initial value of Molar Volume of CO2 at %f K and %f atm: %f L/mol\n", T, P, V_guess);
+    printf("Molar volume of CO2 at %.2f atm and %.2f K: %.4f L/mol\n", P, T, V);
+
+    return 0;
 }
