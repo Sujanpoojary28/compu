@@ -1,32 +1,36 @@
 #include <stdio.h>
 #include <math.h>
-// Function to calculate the temperature gradient
+
 double dT_dx(double x, double T) {
- return -40 * pow(x, 3) + 72 * pow(x, 2) + 24 * x - 70 + 0 * T;
+    return -40 * pow(x, 3) + 72 * pow(x, 2) + 24 * x - 70 + 0 * T;
 }
-// Runge-Kutta fourth-order method
+
 double rungeKutta(double x0, double T0, double h, double maxX) {
- double k1, k2, k3, k4;
- double x = x0;
- double T = T0;
- printf("x\t\t\t\t\tT\n");
- printf("--------------------------\n");
- while (x <= maxX) {
-	printf("%f\t\t%f\n",x,T);
-	k1 = h * dT_dx(x,T);
-	k2 = h * dT_dx(x + h / 2,T + (k1)/2);
-	k3 = h * dT_dx(x + h / 2,T + (k2)/2);
-	k4 = h * dT_dx(x + h,T + k3);
-	T = T + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-	x = x + h;
- }
- return T;
+    double k1, k2, k3, k4;
+    double x = x0;
+    double T = T0;
+
+    printf("x\t\t\tT\n");
+    printf("--------------------------\n");
+
+    while (x <= maxX) {
+        printf("%f\t\t%f\n", x, T);
+        k1 = h * dT_dx(x, T);
+        k2 = h * dT_dx(x + h / 2, T + k1 / 2);
+        k3 = h * dT_dx(x + h / 2, T + k2 / 2);
+        k4 = h * dT_dx(x + h, T + k3);
+        T = T + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+        x = x + h;
+    }
+    return T;
 }
+
 int main() {
- double x0 = 0.0; // Initial value of x
- double T0 = 1000.0; // Initial value of T at x = 0
- double h = 0.025; // Step size
- double maxX = 0.51; // Maximum value of x
- rungeKutta(x0, T0, h, maxX);
- return 0;
+    double x0 = 0.0;
+    double T0 = 1000.0;
+    double h = 0.025;
+    double maxX = 0.51;
+
+    rungeKutta(x0, T0, h, maxX);
+    return 0;
 }
